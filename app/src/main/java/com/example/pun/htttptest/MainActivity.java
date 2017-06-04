@@ -17,26 +17,29 @@ import cz.msebera.android.httpclient.message.BasicHeader;
 import cz.msebera.android.httpclient.protocol.HTTP;
 
 public class MainActivity extends AppCompatActivity {
+    private static AsyncHttpClient _client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //Log.d("httptest", String.valueOf(a));
 
 
-        AsyncHttpClient client = new AsyncHttpClient();
+        _client = new AsyncHttpClient();
 
-        client.get("http://deewaste.ddns.net/?q=services/session/token", null, new AsyncHttpResponseHandler() {
+        _client.get("http://deewaste.ddns.net/?q=services/session/token", null, new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                         Log.d("httptest", "Fetch Passed");
                         String csrf = new String(responseBody);
 
                         Log.d("httptest", csrf);
-                        fetchData();
                         login(csrf);
+                        //fetchData();
+
 
 
 
@@ -55,10 +58,10 @@ public class MainActivity extends AppCompatActivity {
 
 
 }
-
+/*
 public static void fetchData(){
     AsyncHttpClient client = new AsyncHttpClient();
-    client.get("http://deewaste.ddns.net/?q=my_endpoint/node/10.json", null, new JsonHttpResponseHandler(){
+    client.get("http://deewaste.ddns.net/?q=my_endpoint/node/55.json", null, new JsonHttpResponseHandler(){
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
 
@@ -67,6 +70,16 @@ public static void fetchData(){
             Log.d("httptest", "Node ID is " + String.valueOf(vid));
             String title = response.optString("title");
             Log.d("httptest", "Title is " + String.valueOf(title));
+            String type = response.optString("type");
+            Log.d("httptest", "Type is " + String.valueOf(type));
+
+
+
+        }
+        public void onSuccess(int statusCode, Header[] headers, JSONArray timeline) {
+            // Pull out the first event on the public timeline
+            Log.d("httptest", "Not found");
+
 
 
         }
@@ -75,6 +88,7 @@ public static void fetchData(){
     });
 
 }
+*/
 
 /*public static void register(){
     AsyncHttpClient client = new AsyncHttpClient();
@@ -97,18 +111,17 @@ public static void fetchData(){
 
 
 public static void login(String csrf){
-    AsyncHttpClient client = new AsyncHttpClient();
-    client.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    client.addHeader("Accept", "application/json");
+    _client.addHeader("Content-Type", "application/x-www-form-urlencoded");
+    _client.addHeader("Accept", "application/json");
 
-    client.addHeader("X-CSRF-Token", csrf);
+    _client.addHeader("X-CSRF-Token", csrf);
 
 
     RequestParams params = new RequestParams();
     params.put("username", "admin");
     params.put("password", "pun1112355687");
 
-    client.post("http://deewaste.ddns.net/?q=my_endpoint/user/login.json", params, new JsonHttpResponseHandler() {
+    _client.post("http://deewaste.ddns.net/?q=my_endpoint/user/login.json", params, new JsonHttpResponseHandler() {
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             // If the response is JSONObject instead of expected JSONArray
@@ -121,6 +134,10 @@ public static void login(String csrf){
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
+            logout(token);
+            Log.d("httptest", token);
+
+
 
 
         }
@@ -137,42 +154,55 @@ public static void login(String csrf){
     });
 }
 
+
 public static void createNode(String token) throws UnsupportedEncodingException {
-    AsyncHttpClient client = new AsyncHttpClient();
-    client.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    client.addHeader("Accept", "application/json");
 
-    client.addHeader("X-CSRF-Token", token);
+    _client.addHeader("Content-Type", "application/json");
+    _client.addHeader("Accept", "application/json");
 
-    JSONObject jsonParams = new JSONObject();
-    try {
-        jsonParams.put("title","testtitle");
-        jsonParams.put("type", "report");
-        
+    _client.addHeader("X-CSRF-Token", token);
+    RequestParams params = new RequestParams();
 
-        StringEntity entity = new StringEntity(jsonParams.toString());
-        entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-
-        client.post("http://deewaste.ddns.net/?q=my_endpoint/node.json", null, new JsonHttpResponseHandler(){
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-            Log.d("httptest", "success");
+    //JSONObject jsonParams = new JSONObject();
+    params.put("title","testtitle");
+    params.put("type", "article");
 
 
-            }
+    StringEntity entity = new StringEntity(params.toString());
+    entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
 
-        });
+    _client.post("http://deewaste.ddns.net/?q=my_endpoint/node.json", null, new JsonHttpResponseHandler(){
+        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+        Log.d("httptest", "create node success");
 
-
-    } catch (JSONException e) {
-        e.printStackTrace();
-    }
-
-
-
+        }
+    });
 
 
 }
 
+public static void logout(String token){
+    AsyncHttpClient client = new AsyncHttpClient();
+    client.addHeader("Accept", "application/json");
+    client.addHeader("X-CSRF-Token", token);
+    client.addHeader("Content-Type", "application/x-www-form-urlencoded");
+    client.post("http://deewaste.ddns.net/?q=my_endpoint/user/logout.json", null, new JsonHttpResponseHandler(){
+        public void onSuccess(int statusCode, Header[] headers, JSONObject response){
+            Log.d("httptest", "logout success");
+        }
+        @Override
+        public void onSuccess(int statusCode, Header[] headers, JSONArray timeline) {
+            // Pull out the first event on the public timeline
+            Log.d("httptest", "Logout Failed");
+
+
+        }
+
+    });
+
+
+
+}
 
 
 }
