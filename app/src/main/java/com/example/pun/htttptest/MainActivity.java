@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
                         Log.d("httptest", csrf);
                         login(csrf);
-                        //fetchData();
+                        fetchData();
 
 
 
@@ -58,10 +58,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 }
-/*
+
 public static void fetchData(){
-    AsyncHttpClient client = new AsyncHttpClient();
-    client.get("http://deewaste.ddns.net/?q=my_endpoint/node/55.json", null, new JsonHttpResponseHandler(){
+    _client = new AsyncHttpClient();
+
+    _client.get("http://deewaste.ddns.net/?q=my_endpoint/node/55.json", null, new JsonHttpResponseHandler(){
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
 
@@ -88,26 +89,6 @@ public static void fetchData(){
     });
 
 }
-*/
-
-/*public static void register(){
-    AsyncHttpClient client = new AsyncHttpClient();
-    client.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    client.addHeader("Accept", "application/json");
-
-    RequestParams params = new RequestParams();
-    params.put("name", "Test2");
-    params.put("mail", "test2@gmail.com");
-    params.put("pass", "1222333");
-    params.put("pass2","1222333");
-
-    client.post("http://deewaste.ddns.net/?q=my_endpoint/user/login.json", params, new JsonHttpResponseHandler(){
-
-        public void OnSuccess(int statusCode, Header[] headers, JSONObject response) {
-            Log.d("httptest", "User created");
-        }
-    });
-} */
 
 
 public static void login(String csrf){
@@ -203,6 +184,26 @@ public static void logout(String token){
 
 
 }
+
+
+/*public static void register(){
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.addHeader("Content-Type", "application/x-www-form-urlencoded");
+        client.addHeader("Accept", "application/json");
+
+        RequestParams params = new RequestParams();
+        params.put("name", "Test2");
+        params.put("mail", "test2@gmail.com");
+        params.put("pass", "1222333");
+        params.put("pass2","1222333");
+
+        client.post("http://deewaste.ddns.net/?q=my_endpoint/user/login.json", params, new JsonHttpResponseHandler(){
+
+            public void OnSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.d("httptest", "User created");
+            }
+        });
+    } */
 
 
 }
