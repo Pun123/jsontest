@@ -18,6 +18,7 @@ import cz.msebera.android.httpclient.protocol.HTTP;
 
 public class MainActivity extends AppCompatActivity {
     private static AsyncHttpClient _client;
+    private static String _csrfToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
                         Log.d("httptest", csrf);
                         login(csrf);
-                        fetchData();
+
 
 
 
@@ -60,9 +61,10 @@ public class MainActivity extends AppCompatActivity {
 }
 
 public static void fetchData(){
-    _client = new AsyncHttpClient();
+    // _client = new AsyncHttpClient();
+    _client.addHeader("X-CSRF-Token", _csrfToken);
 
-    _client.get("http://deewaste.ddns.net/?q=my_endpoint/node/55.json", null, new JsonHttpResponseHandler(){
+    _client.get("http://deewaste.ddns.net/?q=my_endpoint/node/27.json", null, new JsonHttpResponseHandler(){
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
 
@@ -107,16 +109,17 @@ public static void login(String csrf){
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             // If the response is JSONObject instead of expected JSONArray
             Log.d("httptest", "Login Sucessful");
-            String token = response.optString("token");
+            _csrfToken = response.optString("token");
 
-            Log.d("httptest", token );
+            Log.d("httptest", _csrfToken);
             try {
-                createNode(token);
+                createNode();
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            logout(token);
-            Log.d("httptest", token);
+            // fetchData();
+            logout(_csrfToken);
+            Log.d("httptest", _csrfToken);
 
 
 
@@ -136,12 +139,12 @@ public static void login(String csrf){
 }
 
 
-public static void createNode(String token) throws UnsupportedEncodingException {
+public static void createNode() throws UnsupportedEncodingException {
 
-    _client.addHeader("Content-Type", "application/json");
-    _client.addHeader("Accept", "application/json");
+    // _client.addHeader("Content-Type", "application/json");
+    // _client.addHeader("Accept", "application/json");
 
-    _client.addHeader("X-CSRF-Token", token);
+    _client.addHeader("X-CSRF-Token", _csrfToken);
     RequestParams params = new RequestParams();
 
     //JSONObject jsonParams = new JSONObject();
@@ -149,10 +152,10 @@ public static void createNode(String token) throws UnsupportedEncodingException 
     params.put("type", "article");
 
 
-    StringEntity entity = new StringEntity(params.toString());
-    entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+    // StringEntity entity = new StringEntity(params.toString());
+    // entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
 
-    _client.post("http://deewaste.ddns.net/?q=my_endpoint/node.json", null, new JsonHttpResponseHandler(){
+    _client.post("http://deewaste.ddns.net/?q=my_endpoint/node.json", params, new JsonHttpResponseHandler(){
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
         Log.d("httptest", "create node success");
 
